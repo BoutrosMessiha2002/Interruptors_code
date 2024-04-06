@@ -27,7 +27,9 @@ float Vout;
 float max;
 
 /*Ohmmeter*/
-
+float adc_ohm;
+float resistance;
+float volt;
 int main()
 {
 	ADC_ConfigType config={
@@ -483,3 +485,77 @@ void AmmeterMode(){
 		LCD_displayString("Wrong input");
 	}
 }
+
+void OhmmeterRange(){
+	num=0;
+		while((num==0)||(num==4)){
+			LCD_displayString("Choose Range");
+			LCD_clearScreen();
+			num=KEYPAD_getPressedKey();
+		}
+		LCD_displayString("out&=");
+		LCD_displayFloat(num,2);
+		_delay_ms(500);
+		if(num==1){
+			LCD_clearScreen();
+			LCD_displayString("1st Range");
+			_delay_ms(500);
+			LCD_clearScreen();
+			GPIO_writePin(PORTA_ID,PIN6_ID,0);
+			GPIO_writePin(PORTA_ID,PIN7_ID,0);
+			_delay_ms(500);
+			adc_ohm=ADC_readChannel(2);
+			LCD_displayString("ADC=");
+			LCD_displayFloat(adc_ohm,2);
+			_delay_ms(500);
+			LCD_clearScreen();
+
+			volt = adc_ohm*(5.0/1023);
+			resistance = (((volt/5.0)*(2200+1050)-700)/(1-volt/5.0));//Rmux=350 Rs=2.2k Rmax=10k
+			LCD_displayFloat(resistance,2);
+			LCD_displayString("Ohm");
+			_delay_ms(1000);
+		}
+		if(num==2){
+			LCD_clearScreen();
+			LCD_displayString("2nd Range");
+			_delay_ms(500);
+			LCD_clearScreen();
+			GPIO_writePin(PORTA_ID,PIN6_ID,1);
+			GPIO_writePin(PORTA_ID,PIN7_ID,0);
+			_delay_ms(500);
+			adc_ohm=ADC_readChannel(2);
+			LCD_displayString("ADC=");
+			LCD_displayFloat(adc_ohm,2);
+			_delay_ms(500);
+			LCD_clearScreen();
+
+			volt = adc_ohm*(5.0/1023);
+			resistance = (((volt/5.0)*(22+1.05)-0.7)/(1-volt/5.0));//Rmux=350 Rs=22k Rmax=89k
+			LCD_displayFloat(resistance,2);
+			LCD_displayString("KiloOhm");
+			_delay_ms(1000);
+		}
+		if(num==3){
+			LCD_clearScreen();
+			LCD_displayString("3rd Range");
+			_delay_ms(500);
+			LCD_clearScreen();
+			GPIO_writePin(PORTA_ID,PIN6_ID,0);
+			GPIO_writePin(PORTA_ID,PIN7_ID,1);
+			_delay_ms(500);
+			adc_ohm=ADC_readChannel(2);
+			LCD_displayString("ADC=");
+			LCD_displayFloat(adc_ohm,2);
+			_delay_ms(500);
+			LCD_clearScreen();
+
+			volt = adc_ohm*(5.0/1023);
+			resistance =(((volt/5.0)*(150+1.05)-0.7)/(1-volt/5.0));//Rmux=350 Rs=150k Rmax=600k
+			LCD_displayFloat(resistance,2);
+			LCD_displayString("KiloOhm");
+			_delay_ms(1000);
+		}
+}
+
+
