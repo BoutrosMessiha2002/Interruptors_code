@@ -53,10 +53,6 @@ int main()
     /*Ammeter*/
     SET_BIT(DDRC,PC2);
     SET_BIT(DDRC,PC3);
-    SET_BIT(DDRB,PIN0);
-    SET_BIT(DDRB,PIN1);
-    CLEAR_BIT(DDRB,PIN2);
-    CLEAR_BIT(DDRB,PIN3);
     SET_BIT(DDRB,PIN7);
     SET_BIT(DDRC,PIN5);
     SET_BIT(DDRA,PIN5);
