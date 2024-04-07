@@ -55,7 +55,6 @@ int main()
     SET_BIT(DDRC,PC3);
     SET_BIT(DDRB,PIN7);
     SET_BIT(DDRC,PIN5);
-    SET_BIT(DDRA,PIN5);
     SET_BIT(DDRB,PIN5);
     SET_BIT(DDRB,PIN6);
 
@@ -275,9 +274,9 @@ void AmmeterMode(){
 		    LCD_displayString("Auto range 3");
 			_delay_ms(200);
 
-			GPIO_writePin(PORTA_ID, PIN5_ID, 0);
-			GPIO_writePin(PORTB_ID, PIN5_ID, 0);
-			GPIO_writePin(PORTB_ID, PIN6_ID, 1);
+			GPIO_writePin(PORTB_ID, PIN5_ID, 1);
+			GPIO_writePin(PORTB_ID, PIN6_ID, 0);
+			GPIO_writePin(PORTB_ID, PIN7_ID, 0);
 			_delay_ms(100);
 
 			adc1=ADC_readChannel(1);
@@ -307,9 +306,9 @@ void AmmeterMode(){
 				LCD_displayString("Auto range 2");
 				_delay_ms(200);
 
-				GPIO_writePin(PORTA_ID, PIN5_ID, 0);
-				GPIO_writePin(PORTB_ID, PIN5_ID, 1);
-				GPIO_writePin(PORTB_ID, PIN6_ID, 0);
+				GPIO_writePin(PORTB_ID, PIN5_ID, 0);
+				GPIO_writePin(PORTB_ID, PIN6_ID, 1);
+				GPIO_writePin(PORTB_ID, PIN7_ID, 0);
 				_delay_ms(100);
 
 				adc1=ADC_readChannel(1);
@@ -337,9 +336,9 @@ void AmmeterMode(){
 					LCD_displayString("1st range");
 					_delay_ms(200);
 
-					GPIO_writePin(PORTA_ID, PIN5_ID, 1);
 					GPIO_writePin(PORTB_ID, PIN5_ID, 0);
 					GPIO_writePin(PORTB_ID, PIN6_ID, 0);
+					GPIO_writePin(PORTB_ID, PIN7_ID, 1);
 					_delay_ms(100);
 
 					adc1=ADC_readChannel(1);
@@ -497,8 +496,8 @@ void OhmmeterRange(){
 			LCD_displayString("1st Range");
 			_delay_ms(500);
 			LCD_clearScreen();
-			GPIO_writePin(PORTA_ID,PIN6_ID,0);
-			GPIO_writePin(PORTA_ID,PIN7_ID,0);
+			GPIO_writePin(PORTB_ID,PIN5_ID,0);
+			GPIO_writePin(PORTB_ID,PIN6_ID,0);
 			_delay_ms(500);
 			adc_ohm=ADC_readChannel(2);
 			LCD_displayString("ADC=");
@@ -517,8 +516,8 @@ void OhmmeterRange(){
 			LCD_displayString("2nd Range");
 			_delay_ms(500);
 			LCD_clearScreen();
-			GPIO_writePin(PORTA_ID,PIN6_ID,1);
-			GPIO_writePin(PORTA_ID,PIN7_ID,0);
+			GPIO_writePin(PORTB_ID,PIN5_ID,1);
+			GPIO_writePin(PORTB_ID,PIN6_ID,0);
 			_delay_ms(500);
 			adc_ohm=ADC_readChannel(2);
 			LCD_displayString("ADC=");
@@ -537,8 +536,8 @@ void OhmmeterRange(){
 			LCD_displayString("3rd Range");
 			_delay_ms(500);
 			LCD_clearScreen();
-			GPIO_writePin(PORTA_ID,PIN6_ID,0);
-			GPIO_writePin(PORTA_ID,PIN7_ID,1);
+			GPIO_writePin(PORTB_ID,PIN5_ID,0);
+			GPIO_writePin(PORTB_ID,PIN6_ID,1);
 			_delay_ms(500);
 			adc_ohm=ADC_readChannel(2);
 			LCD_displayString("ADC=");
