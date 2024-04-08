@@ -113,6 +113,13 @@ void MAIN_whichMode()
 		num=0;
 		AmmeterMode();
 	}
+
+if (num==3) //Ohmmeter
+	{
+		num=0;
+		OhmmeterRange();
+	}
+
 }
 
 
