@@ -13,23 +13,24 @@
 #include<util/delay.h>
 #include"common_macros.h"
 #include"std_types.h"
-/*Voltmeter*/
+
+/*General*/
 float voltage;
 float adc_value;
 uint8 num=0;
-uint8 num2=0;
+
+/*Voltmeter*/
 uint8 status;
 
 /*Ammeter*/
 float amp;
-float adc1;
-float Vout;
-float max;
+
+/***********************__AC Ammeter__****************************/
+//float max;   
 
 /*Ohmmeter*/
-float adc_ohm;
 float resistance;
-float volt;
+
 int main()
 {
 	ADC_ConfigType config={
@@ -51,12 +52,9 @@ int main()
     DDRB|=(1<<PB4);
 
     /*Ammeter*/
-    SET_BIT(DDRC,PC2);
-    SET_BIT(DDRC,PC3);
-    SET_BIT(DDRB,PIN7);
-    SET_BIT(DDRC,PIN5);
     SET_BIT(DDRB,PIN5);
     SET_BIT(DDRB,PIN6);
+    SET_BIT(DDRB,PIN7);
 
 
 while(1)
@@ -117,6 +115,9 @@ void MAIN_whichMode()
 if (num==3) //Ohmmeter
 	{
 		num=0;
+		//Mode MUX
+		PORTC|=(1<<PC4);
+		PORTB&=~(1<<PB7);
 		OhmmeterRange();
 	}
 
@@ -125,42 +126,39 @@ if (num==3) //Ohmmeter
 
 
 
-void MAIN_voltmeter()
-{
-MAIN_whichMode();
-}
+
 void MAIN_whichRange()
 {
 	LCD_clearScreen();
-	LCD_displayString("Select Range: ");
-	while(num2==0 || num2==4)
+	LCD_displayString("Select Range ");
+	while(num==0 || num==4)
 	{
-	num2=KEYPAD_getPressedKey();
+	num=KEYPAD_getPressedKey();
 	}
-	if(num2==1)
+	if(num==1)
 	{
-		num2=0;
+		num=0;
 		PORTC&=~(1<<PC6);
 		PORTC&=~(1<<PC7);
 		MAIN_firstRange();
 	}
-	else if(num2==2)
+	else if(num==2)
 	{
-		num2=0;
+		num=0;
 		PORTC|=(1<<PC6);
 		PORTC&=~(1<<PC7);
 		MAIN_secondRange();
 	}
-	else if(num2==3)
+	else if(num==3)
 	{
-		num2=0;
+		num=0;
 		PORTC&=~(1<<PC6);
 		PORTC|=(1<<PC7);
 		MAIN_thirdRange();
 	}
-	else if(num2==5)
+	else if(num==5)
 	{
-		num2=0;
+		num=0;
 		PORTC|=(1<<PC6);
 		PORTC|=(1<<PC7);
 		MAIN_fourthRange();
@@ -178,13 +176,14 @@ void MAIN_firstRange()
 		LCD_clearScreen();
 		adc_value=ADC_readChannel(0);
 		voltage=(adc_value*(5.0/1023))*2.59;
-				if(voltage>=10)
-					LCD_displayString("OUT OF RANGE");
-				else
-				{
-					LCD_displayFloat(voltage,2);
+		if(voltage>=10)
+			LCD_displayString("OUT OF RANGE");
+		else
+		{
+			LCD_displayFloat(voltage,2);
+			_delay_ms(150);
 
-				}
+		}
 	}
 	num=0;
 	MAIN_whichMode();
@@ -205,7 +204,7 @@ void MAIN_secondRange()
 			else
 			{
 			LCD_displayFloat(voltage,2);
-
+			_delay_ms(150);
 			}
 }
 	num=0;
@@ -222,13 +221,13 @@ while(KEYPAD_getPressedKey()!='#')
 	LCD_clearScreen();
 	adc_value=ADC_readChannel(0);
 	voltage=adc_value*(5.0/1023)*25.54;
-			if(voltage>=100)
-				LCD_displayString("OUT OF RANGE");
-			else
-			{
-				LCD_displayFloat(voltage,2);
-
-			}
+	if(voltage>=100)
+		LCD_displayString("OUT OF RANGE");
+	else
+	{
+		LCD_displayFloat(voltage,2);
+		_delay_ms(150);
+	}
 }
 num=0;
 MAIN_whichMode();
@@ -249,6 +248,7 @@ void MAIN_fourthRange()
 			else
 			{
 				LCD_displayFloat(voltage,2);
+				_delay_ms(150);
 
 			}
 }
@@ -263,78 +263,71 @@ void AmmeterMode(){
 	//Reset keypad value
 	num=0;
 
-	LCD_clearScreen();
-	LCD_displayString("A: DC=1 AC=2");
-	while(num==0 || num==4)
-	{
-		num=KEYPAD_getPressedKey();
-	}
+	//LCD_clearScreen();
+	//LCD_displayString("A: DC=1 AC=2");
+	//while(num==0 || num==4)
+	//{
+	//	num=KEYPAD_getPressedKey();
+	//}
 
-	if(num==1)
-	{
-		LCD_clearScreen();
-			LCD_displayString("out&=");
-			LCD_displayFloat(num,2);
+	//if(num==1)
+	//{
+
+
+			GPIO_writePin(PORTB_ID, PIN5_ID, 0);
+			GPIO_writePin(PORTB_ID, PIN6_ID, 0);
+			GPIO_writePin(PORTB_ID, PIN7_ID, 1);
 			_delay_ms(300);
 
-			LCD_clearScreen();
-		    LCD_displayString("Auto range 3");
-			_delay_ms(200);
+			adc_value=ADC_readChannel(1);
 
-			GPIO_writePin(PORTB_ID, PIN5_ID, 1);
-			GPIO_writePin(PORTB_ID, PIN6_ID, 0);
-			GPIO_writePin(PORTB_ID, PIN7_ID, 0);
-			_delay_ms(100);
-
-			adc1=ADC_readChannel(1);
-			LCD_clearScreen();
-			LCD_displayString("ADC=");
-			LCD_displayFloat(adc1,2);
-			_delay_ms(1000);
-
-			if(adc1>=90){
+			if(adc_value>120)
+			{
+				/***************************____Testing____*****************************/
 				LCD_clearScreen();
 				LCD_displayString("3rd range");
-				_delay_ms(1000);
-
-				Vout = adc1*(5.0/1023);
-				amp=Vout/(10.0*0.4); //Range 100mA:1A (Rs=0.4)
-				LCD_clearScreen();
-				LCD_displayString("Amp=");
-				LCD_displayFloat(amp,5);
-				_delay_ms(1000);
-				LCD_clearScreen();
+				_delay_ms(500);
+                /***********************************************************************/
+				while(KEYPAD_getPressedKey()!='#' && adc_value>120)
+				{
+					adc_value=ADC_readChannel(1);
+					voltage = adc_value*(5.0/1023);
+					amp=voltage/(10.0*0.4); //Range 100mA:1A (Rs=0.4)
+					LCD_clearScreen();
+					LCD_displayString("Amp=");
+					LCD_displayFloat(amp,5);
+					_delay_ms(150);
+					LCD_clearScreen();
+				}
 				num=0;
 			}
 			else
 			{
 
-				LCD_clearScreen();
-				LCD_displayString("Auto range 2");
-				_delay_ms(200);
-
 				GPIO_writePin(PORTB_ID, PIN5_ID, 0);
 				GPIO_writePin(PORTB_ID, PIN6_ID, 1);
 				GPIO_writePin(PORTB_ID, PIN7_ID, 0);
-				_delay_ms(100);
+				_delay_ms(300);
 
-				adc1=ADC_readChannel(1);
-				LCD_clearScreen();
-				LCD_displayString("ADC=");
-				LCD_displayFloat(adc1,2);
-				_delay_ms(1000);
-				if (adc1>=100)
+				adc_value=ADC_readChannel(1);
+
+				if (adc_value>120)
 				{
 					LCD_clearScreen();
 					LCD_displayString("2nd range");
 					_delay_ms(200);
-					Vout = adc1*(5.0/1023);
-					amp=Vout/(10.0*4.5); //Range 10:100mA (Rs=4.5)
-					LCD_clearScreen();
-					LCD_displayString("Amp=");
-					LCD_displayFloat(amp,5);
-					_delay_ms(1000);
-					LCD_clearScreen();
+
+					while(KEYPAD_getPressedKey()!='#' && adc_value>120)
+					{
+						adc_value=ADC_readChannel(1);
+						voltage = adc_value*(5.0/1023);
+						amp=voltage/(10.0*4.5); //Range 10:100mA (Rs=4.5)
+						LCD_clearScreen();
+						LCD_displayString("Amp=");
+						LCD_displayFloat(amp,5);
+						_delay_ms(150);
+						LCD_clearScreen();
+					}
 					num=0;
 				}
 				else
@@ -343,28 +336,29 @@ void AmmeterMode(){
 					LCD_displayString("1st range");
 					_delay_ms(200);
 
-					GPIO_writePin(PORTB_ID, PIN5_ID, 0);
+					GPIO_writePin(PORTB_ID, PIN5_ID, 1);
 					GPIO_writePin(PORTB_ID, PIN6_ID, 0);
-					GPIO_writePin(PORTB_ID, PIN7_ID, 1);
-					_delay_ms(100);
+					GPIO_writePin(PORTB_ID, PIN7_ID, 0);
+					_delay_ms(300);
 
-					adc1=ADC_readChannel(1);
-					LCD_clearScreen();
-					LCD_displayString("ADC=");
-					LCD_displayFloat(adc1,2);
-					_delay_ms(1000);
-					Vout = adc1*(5.0/1023);
-					amp=Vout/(10.0*45.0); //Range 0:10mA (Rs=45)
-					LCD_clearScreen();
-					LCD_displayString("Amp=");
-					LCD_displayFloat(amp,5);
-					_delay_ms(1000);
-					LCD_clearScreen();
+					while(KEYPAD_getPressedKey()!='#' && adc_value>120)
+					{
+						adc_value=ADC_readChannel(1);
+						voltage = adc_value*(5.0/1023);
+						amp=voltage/(10.0*45.0); //Range 0:10mA (Rs=45)
+						LCD_clearScreen();
+						LCD_displayString("Amp=");
+						LCD_displayFloat(amp,5);
+						_delay_ms(1000);
+						LCD_clearScreen();
+					}
 					num=0;
 				}
 			}
-	}
+	//}
 
+/***********************************__AC_Ammeter__*****************************************/
+	/*   
 	else if(num==2)
 	{
 		num=0;
@@ -387,24 +381,24 @@ void AmmeterMode(){
 				GPIO_writePin(PORTB_ID, PIN1_ID, 0);
 				_delay_ms(100);
 
-				adc1=ADC_readChannel(1);
-				max=adc1;
+				adc_value=ADC_readChannel(1);
+				max=adc_value;
 				for(int i=0;i<500;i++)
 				{
-					adc1=ADC_readChannel(1);
+					adc_value=ADC_readChannel(1);
 					_delay_ms(1);
-					if(adc1>max)
+					if(adc_value>max)
 					{
-					max=adc1;
+					max=adc_value;
 					}
 				}
-				adc1=max;
-				LCD_displayFloat(adc1,2);
+				adc_value=max;
+				LCD_displayFloat(adc_value,2);
 				_delay_ms(500);
 				LCD_clearScreen();
 
-				Vout = adc1*(5.0/1023);
-				amp=Vout/(10.0*45.1); //Range 0:10mA (Rs=45)
+				voltage = adc_value*(5.0/1023);
+				amp=voltage/(10.0*45.1); //Range 0:10mA (Rs=45)
 				LCD_displayString("Amp=");
 				LCD_displayFloat(amp,5);
 				_delay_ms(500);
@@ -421,24 +415,24 @@ void AmmeterMode(){
 					GPIO_writePin(PORTB_ID, PIN1_ID, 1);
 					_delay_ms(100);
 
-					adc1=ADC_readChannel(1);
-									max=adc1;
+					adc_value=ADC_readChannel(1);
+									max=adc_value;
 									for(int i=0;i<50;i++)
 									{
-										adc1=ADC_readChannel(1);
-										if(adc1>max)
+										adc_value=ADC_readChannel(1);
+										if(adc_value>max)
 										{
-										max=adc1;
+										max=adc_value;
 										}
 									}
-									adc1=max;
+									adc_value=max;
 					LCD_displayString("ADC=");
-					LCD_displayFloat(adc1,2);
+					LCD_displayFloat(adc_value,2);
 					_delay_ms(500);
 					LCD_clearScreen();
 
-					Vout = adc1*(5.0/1023);
-					amp=Vout/(10.0*4.6); //Range 10:100mA (Rs=4.5)
+					voltage = adc_value*(5.0/1023);
+					amp=voltage/(10.0*4.6); //Range 10:100mA (Rs=4.5)
 					LCD_displayString("Amp=");
 					LCD_displayFloat(amp,5);
 					_delay_ms(500);
@@ -455,24 +449,24 @@ void AmmeterMode(){
 					GPIO_writePin(PORTB_ID, PIN1_ID, 1);
 					_delay_ms(100);
 
-					adc1=ADC_readChannel(1);
-									max=adc1;
+					adc_value=ADC_readChannel(1);
+									max=adc_value;
 									for(int i=0;i<50;i++)
 									{
-										adc1=ADC_readChannel(1);
-										if(adc1>max)
+										adc_value=ADC_readChannel(1);
+										if(adc_value>max)
 										{
-										max=adc1;
+										max=adc_value;
 										}
 									}
-									adc1=max;
+									adc_value=max;
 					LCD_displayString("ADC=");
-					LCD_displayFloat(adc1,2);
+					LCD_displayFloat(adc_value,2);
 					_delay_ms(500);
 					LCD_clearScreen();
 
-					Vout = adc1*(5.0/1023);
-					amp=Vout/(10.0*0.54); //Range 100mA:1A (Rs=45)
+					voltage = adc_value*(5.0/1023);
+					amp=voltage/(10.0*0.54); //Range 100mA:1A (Rs=45)
 					LCD_displayString("Amp=");
 					LCD_displayFloat(amp,5);
 					_delay_ms(500);
@@ -481,82 +475,78 @@ void AmmeterMode(){
 
 				}
 	}
-	else
-	{
-		LCD_clearScreen();
-		LCD_displayString("Wrong input");
-	}
+	*/
 }
 
 void OhmmeterRange(){
 	num=0;
-		while((num==0)||(num==4)){
-			LCD_displayString("Choose Range");
-			LCD_clearScreen();
-			num=KEYPAD_getPressedKey();
-		}
-		LCD_displayString("out&=");
-		LCD_displayFloat(num,2);
-		_delay_ms(500);
-		if(num==1){
-			LCD_clearScreen();
-			LCD_displayString("1st Range");
-			_delay_ms(500);
-			LCD_clearScreen();
-			GPIO_writePin(PORTB_ID,PIN5_ID,0);
-			GPIO_writePin(PORTB_ID,PIN6_ID,0);
-			_delay_ms(500);
-			adc_ohm=ADC_readChannel(2);
-			LCD_displayString("ADC=");
-			LCD_displayFloat(adc_ohm,2);
-			_delay_ms(500);
-			LCD_clearScreen();
+	LCD_clearScreen();
+	LCD_displayString("Choose Range");
+	while((num==0)||(num==4)){
+		
+		num=KEYPAD_getPressedKey();
+	}
 
-			volt = adc_ohm*(5.0/1023);
-			resistance = (((volt/5.0)*(2200+1050)-700)/(1-volt/5.0));//Rmux=350 Rs=2.2k Rmax=10k
+	if(num==1){
+		LCD_clearScreen();
+		LCD_displayString("1st Range");
+
+		GPIO_writePin(PORTB_ID,PIN5_ID,0);
+		GPIO_writePin(PORTB_ID,PIN6_ID,0);
+		_delay_ms(500);
+
+		while(KEYPAD_getPressedKey()!='#')
+		{
+			adc_value=ADC_readChannel(2);
+			voltage = adc_value*(5.0/1023);
+			resistance = (((voltage/5.0)*(2200+1050)-700)/(1-voltage/5.0));//Rmux=350 Rs=2.2k Rmax=10k
+			LCD_clearScreen();
 			LCD_displayFloat(resistance,2);
 			LCD_displayString("Ohm");
-			_delay_ms(1000);
+			_delay_ms(150);
 		}
-		if(num==2){
-			LCD_clearScreen();
-			LCD_displayString("2nd Range");
-			_delay_ms(500);
-			LCD_clearScreen();
-			GPIO_writePin(PORTB_ID,PIN5_ID,1);
-			GPIO_writePin(PORTB_ID,PIN6_ID,0);
-			_delay_ms(500);
-			adc_ohm=ADC_readChannel(2);
-			LCD_displayString("ADC=");
-			LCD_displayFloat(adc_ohm,2);
-			_delay_ms(500);
-			LCD_clearScreen();
+		num=0;
+	}
+	else if(num==2){
+		LCD_clearScreen();
+		LCD_displayString("2nd Range");
 
-			volt = adc_ohm*(5.0/1023);
-			resistance = (((volt/5.0)*(22+1.05)-0.7)/(1-volt/5.0));//Rmux=350 Rs=22k Rmax=89k
-			LCD_displayFloat(resistance,2);
-			LCD_displayString("KiloOhm");
-			_delay_ms(1000);
-		}
-		if(num==3){
-			LCD_clearScreen();
-			LCD_displayString("3rd Range");
-			_delay_ms(500);
-			LCD_clearScreen();
-			GPIO_writePin(PORTB_ID,PIN5_ID,0);
-			GPIO_writePin(PORTB_ID,PIN6_ID,1);
-			_delay_ms(500);
-			adc_ohm=ADC_readChannel(2);
-			LCD_displayString("ADC=");
-			LCD_displayFloat(adc_ohm,2);
-			_delay_ms(500);
-			LCD_clearScreen();
+		
+		GPIO_writePin(PORTB_ID,PIN5_ID,1);
+		GPIO_writePin(PORTB_ID,PIN6_ID,0);
+		_delay_ms(500);
+		
+		while(KEYPAD_getPressedKey()!='#')
+		{
+			adc_value=ADC_readChannel(2);
 
-			volt = adc_ohm*(5.0/1023);
-			resistance =(((volt/5.0)*(150+1.05)-0.7)/(1-volt/5.0));//Rmux=350 Rs=150k Rmax=600k
+			voltage = adc_value*(5.0/1023);
+			resistance = (((voltage/5.0)*(22+1.05)-0.7)/(1-voltage/5.0));//Rmux=350 Rs=22k Rmax=89k
+			LCD_clearScreen();
 			LCD_displayFloat(resistance,2);
-			LCD_displayString("KiloOhm");
-			_delay_ms(1000);
+			LCD_displayString("Kohm");
+			_delay_ms(150);
 		}
+			num=0;
+	}
+	else if(num==3){
+		LCD_clearScreen();
+		LCD_displayString("3rd Range");
+
+		GPIO_writePin(PORTB_ID,PIN5_ID,0);
+		GPIO_writePin(PORTB_ID,PIN6_ID,1);
+		_delay_ms(500);
+
+		while(KEYPAD_getPressedKey()!='#')
+		{
+			adc_value=ADC_readChannel(2);
+			voltage = adc_value*(5.0/1023);
+			resistance =(((voltage/5.0)*(150+1.05)-0.7)/(1-voltage/5.0));//Rmux=350 Rs=150k Rmax=600k
+			LCD_clearScreen();
+			LCD_displayFloat(resistance,2);
+			LCD_displayString("Kohm");
+			_delay_ms(150);
+		}
+		num=0;
+	}
 }
-

@@ -17,7 +17,6 @@ void MAIN_firstRange();
 void MAIN_secondRange();
 void MAIN_thirdRange();
 void MAIN_fourthRange();
-void MAIN_voltmeter();
 void MAIN_ammeter();
 void MAIN_whichMode();
 
