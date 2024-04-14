@@ -26,7 +26,7 @@ uint8 status;
 float amp;
 
 /***********************__AC Ammeter__****************************/
-//float max;   
+//float max;
 
 /*Ohmmeter*/
 float resistance;
@@ -41,7 +41,7 @@ int main()
 	LCD_init();
 
     /*Keypad internal pull up*/
-    PORTD|=(1<<PD4)|(1<<PD5)|(1<<PD6)|(1<<PD7);
+    //PORTD|=(1<<PD4)|(1<<PD5)|(1<<PD6)|(1<<PD7);
 
 	/*Mode selection*/
 	DDRC|=(1<<PC4);
@@ -287,6 +287,8 @@ void AmmeterMode(){
 				LCD_clearScreen();
 				LCD_displayString("3rd range");
 				_delay_ms(500);
+				LCD_clearScreen();
+				LCD_displayFloat(adc_value,5);
                 /***********************************************************************/
 				while(KEYPAD_getPressedKey()!='#' && adc_value>120)
 				{
@@ -341,6 +343,8 @@ void AmmeterMode(){
 					GPIO_writePin(PORTB_ID, PIN7_ID, 0);
 					_delay_ms(300);
 
+					adc_value=ADC_readChannel(1);
+
 					while(KEYPAD_getPressedKey()!='#' && adc_value>120)
 					{
 						adc_value=ADC_readChannel(1);
@@ -349,7 +353,7 @@ void AmmeterMode(){
 						LCD_clearScreen();
 						LCD_displayString("Amp=");
 						LCD_displayFloat(amp,5);
-						_delay_ms(1000);
+						_delay_ms(150);
 						LCD_clearScreen();
 					}
 					num=0;
@@ -358,7 +362,7 @@ void AmmeterMode(){
 	//}
 
 /***********************************__AC_Ammeter__*****************************************/
-	/*   
+	/*
 	else if(num==2)
 	{
 		num=0;
@@ -483,7 +487,7 @@ void OhmmeterRange(){
 	LCD_clearScreen();
 	LCD_displayString("Choose Range");
 	while((num==0)||(num==4)){
-		
+
 		num=KEYPAD_getPressedKey();
 	}
 
@@ -511,11 +515,11 @@ void OhmmeterRange(){
 		LCD_clearScreen();
 		LCD_displayString("2nd Range");
 
-		
+
 		GPIO_writePin(PORTB_ID,PIN5_ID,1);
 		GPIO_writePin(PORTB_ID,PIN6_ID,0);
 		_delay_ms(500);
-		
+
 		while(KEYPAD_getPressedKey()!='#')
 		{
 			adc_value=ADC_readChannel(2);
