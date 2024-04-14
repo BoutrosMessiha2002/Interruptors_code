@@ -44,7 +44,7 @@ int main()
     //PORTD|=(1<<PD4)|(1<<PD5)|(1<<PD6)|(1<<PD7);
 
 	/*Mode selection*/
-	DDRC|=(1<<PC4);
+	DDRA|=(1<<PA6);
 	DDRB|=(1<<PB7);
 
 	/*Voltmeter*/
@@ -87,7 +87,7 @@ void MAIN_whichMode()
 		{
 			//Mode MUX
 			PORTB&=~(1<<PB7);
-			PORTC&=~(1<<PC4);
+			PORTA&=~(1<<PA6);
 
 			PORTB&=~(1<<PB4);
 			MAIN_whichRange();
@@ -96,7 +96,7 @@ void MAIN_whichMode()
 		{
 			//Mode MUX
 			PORTB|=(1<<PB7);
-			PORTC&=~(1<<PC4);
+			PORTA&=~(1<<PA6);
 
 			PORTB|=(1<<PB4);
 			MAIN_whichRange();
@@ -116,7 +116,7 @@ if (num==3) //Ohmmeter
 	{
 		num=0;
 		//Mode MUX
-		PORTC|=(1<<PC4);
+		PORTA|=(1<<PA6);
 		PORTB&=~(1<<PB7);
 		OhmmeterRange();
 	}
