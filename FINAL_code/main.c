@@ -41,7 +41,7 @@ int main()
 	LCD_init();
 
     /*Keypad internal pull up*/
-    //PORTD|=(1<<PD4)|(1<<PD5)|(1<<PD6)|(1<<PD7);
+    PORTD|=(1<<PD4)|(1<<PD5)|(1<<PD6)|(1<<PD7);
 
 	/*Mode selection*/
 	DDRA|=(1<<PA6);
