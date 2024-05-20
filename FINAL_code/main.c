@@ -41,7 +41,7 @@ int main()
 	LCD_init();
 
     /*Keypad internal pull up*/
-    PORTD|=(1<<PD4)|(1<<PD5)|(1<<PD6)|(1<<PD7);
+    //PORTD|=(1<<PD4)|(1<<PD5)|(1<<PD6)|(1<<PD7);
 
 	/*Mode selection*/
 	DDRA|=(1<<PA6);
@@ -86,6 +86,7 @@ void MAIN_whichMode()
 		if(num==1)
 		{
 			//Mode MUX
+			num=0;
 			PORTB&=~(1<<PB7);
 			PORTA&=~(1<<PA6);
 
@@ -95,6 +96,7 @@ void MAIN_whichMode()
 		else if(num==2)
 		{
 			//Mode MUX
+			num=0;
 			PORTB|=(1<<PB7);
 			PORTA&=~(1<<PA6);
 
@@ -359,6 +361,7 @@ void AmmeterMode(){
 					num=0;
 				}
 			}
+			MAIN_whichMode();
 	//}
 
 /***********************************__AC_Ammeter__*****************************************/
