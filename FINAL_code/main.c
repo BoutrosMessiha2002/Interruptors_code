@@ -41,7 +41,7 @@ int main()
 	LCD_init();
 
     /*Keypad internal pull up*/
-    //PORTD|=(1<<PD4)|(1<<PD5)|(1<<PD6)|(1<<PD7);
+    PORTD|=(1<<PD4)|(1<<PD5)|(1<<PD6)|(1<<PD7);
 
 	/*Mode selection*/
 	DDRA|=(1<<PA6);
@@ -68,7 +68,7 @@ void MAIN_whichMode()
 
 	LCD_clearScreen();
 	LCD_displayString("V=1 A=2 O=3");
-		while(num==0 || num==4)
+		while(num==0 || num==4 || num == '#')
 		{
 			num=KEYPAD_getPressedKey();
 		}
@@ -133,7 +133,7 @@ void MAIN_whichRange()
 {
 	LCD_clearScreen();
 	LCD_displayString("Select Range ");
-	while(num==0 || num==4)
+	while(num==0 || num==4 || num == '#')
 	{
 	num=KEYPAD_getPressedKey();
 	}
@@ -274,25 +274,24 @@ void AmmeterMode(){
 
 	//if(num==1)
 	//{
-
-
+	LCD_clearScreen();
+	LCD_displayString("Choose Range");
+	while(num==0 || num==4)
+		{
+			num=KEYPAD_getPressedKey();
+		}
+	if(num==3)
+		{
 			GPIO_writePin(PORTB_ID, PIN5_ID, 0);
 			GPIO_writePin(PORTB_ID, PIN6_ID, 0);
 			GPIO_writePin(PORTB_ID, PIN7_ID, 1);
 			_delay_ms(300);
 
-			adc_value=ADC_readChannel(1);
-
-			if(adc_value>120)
-			{
-				/***************************____Testing____*****************************/
 				LCD_clearScreen();
 				LCD_displayString("3rd range");
 				_delay_ms(500);
 				LCD_clearScreen();
-				LCD_displayFloat(adc_value,5);
-                /***********************************************************************/
-				while(KEYPAD_getPressedKey()!='#' && adc_value>120)
+				while(KEYPAD_getPressedKey()!='#' )
 				{
 					adc_value=ADC_readChannel(1);
 					voltage = adc_value*(5.0/1023);
@@ -305,7 +304,7 @@ void AmmeterMode(){
 				}
 				num=0;
 			}
-			else
+			else if (num==2)
 			{
 
 				GPIO_writePin(PORTB_ID, PIN5_ID, 0);
@@ -313,15 +312,12 @@ void AmmeterMode(){
 				GPIO_writePin(PORTB_ID, PIN7_ID, 0);
 				_delay_ms(300);
 
-				adc_value=ADC_readChannel(1);
 
-				if (adc_value>120)
-				{
 					LCD_clearScreen();
 					LCD_displayString("2nd range");
 					_delay_ms(200);
 
-					while(KEYPAD_getPressedKey()!='#' && adc_value>120)
+					while(KEYPAD_getPressedKey()!='#')
 					{
 						adc_value=ADC_readChannel(1);
 						voltage = adc_value*(5.0/1023);
@@ -334,7 +330,7 @@ void AmmeterMode(){
 					}
 					num=0;
 				}
-				else
+				else if(num==1)
 				{
 					LCD_clearScreen();
 					LCD_displayString("1st range");
@@ -345,9 +341,8 @@ void AmmeterMode(){
 					GPIO_writePin(PORTB_ID, PIN7_ID, 0);
 					_delay_ms(300);
 
-					adc_value=ADC_readChannel(1);
 
-					while(KEYPAD_getPressedKey()!='#' && adc_value>120)
+					while(KEYPAD_getPressedKey()!='#')
 					{
 						adc_value=ADC_readChannel(1);
 						voltage = adc_value*(5.0/1023);
@@ -360,8 +355,9 @@ void AmmeterMode(){
 					}
 					num=0;
 				}
+	MAIN_whichMode();
 			}
-			MAIN_whichMode();
+
 	//}
 
 /***********************************__AC_Ammeter__*****************************************/
@@ -483,7 +479,6 @@ void AmmeterMode(){
 				}
 	}
 	*/
-}
 
 void OhmmeterRange(){
 	num=0;
@@ -556,4 +551,5 @@ void OhmmeterRange(){
 		}
 		num=0;
 	}
+	MAIN_whichMode();
 }
